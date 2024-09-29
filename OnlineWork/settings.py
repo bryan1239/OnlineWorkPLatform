@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
-import pymysql
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-sj)&l+x-orj$4ar2adkv3zu==i0mxl&i#l2t*bbox8ad85d_f#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', "127.0.0.1", 'localhost']
 
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -77,19 +78,17 @@ WSGI_APPLICATION = 'OnlineWork.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-pymysql.install_as_MySQLdb()
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'onlinework',        # Replace with your database name
-        'USER': 'root',        # Replace with your database user
-        # Replace with your database password
-        'PASSWORD': 'PWyrxokKuXdtpUkIhYxgAsYrTReVVXHM',
-        # Set to '127.0.0.1' or the IP address of your MySQL server
-        'HOST': 'localhost',
-        'PORT': '3306',                 # MySQL default port
-    }
+    'default': dj_database_url.config(
+        default=(
+            # Use Railway's internal database URL in production
+            'postgresql://postgres:sLtUcylgHqaUPuFKaugADbvPsPxGoJKi@postgres.railway.internal:5432/railway'
+            if os.getenv('RAILWAY_ENVIRONMENT') else
+            # Use public connection URL for local development
+            'postgresql://postgres:sLtUcylgHqaUPuFKaugADbvPsPxGoJKi@autorack.proxy.rlwy.net:56572/railway'
+        )
+    )
 }
 
 
@@ -128,6 +127,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    # Static files for the Application app
+    os.path.join(BASE_DIR, 'Application', 'static'),
+    # Static files for the users app
+    # os.path.join(BASE_DIR, 'users', 'static'),
+]
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
