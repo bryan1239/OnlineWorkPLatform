@@ -30,6 +30,7 @@ urlpatterns = [
     path('password-reset/', user_views.user_logout, name='logout'),
     path('', include("Application.urls")),
     path('profile/', user_views.profile, name="profile"),
+     path('', views.home, name='home'),  # Ensure a home route exists
 ]
 
 
